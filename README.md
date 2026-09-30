@@ -97,8 +97,8 @@ make web
 GitHub Actions runs Python checks, builds the UI and Python distributions, and checks native
 browser and chat interactions. Version tags trigger the release workflow; wheels include the UI.
 
-The maintained application is in [`colons/`](colons/). Other root-level application folders
-are an earlier prototype kept for reference. Use the root install/run scripts or the active
-application's [CLI and API reference](colons/README.md).
+The application is in [`colons/`](colons/). Use the root install/run scripts or the
+[CLI and API reference](colons/README.md). See [beta status](docs/status.md) for remaining
+limits before deploying it for other users.
 
 Licensed under [MIT](LICENSE).

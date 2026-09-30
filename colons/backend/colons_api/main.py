@@ -99,6 +99,15 @@ app.add_middleware(
 # Auth & rate limiting
 # --------------------------------------------------------------------------- #
 
+def _trusted_origin(origin: Optional[str], host: str, scheme: str) -> bool:
+    if not origin:
+        return True  # CLI/server clients do not send a browser Origin header.
+    scheme = {"ws": "http", "wss": "https"}.get(scheme, scheme)
+    return (origin == f"{scheme}://{host}"
+            or origin in CONFIG.server.cors_origins
+            or "*" in CONFIG.server.cors_origins)
+
+
 _rate_buckets: Dict[str, List[float]] = {}
 
 
@@ -122,6 +131,10 @@ async def require_auth(
 @app.middleware("http")
 async def request_context(request: Request, call_next):
     """Assign a request id, track timing, and enforce the rate limit."""
+    origin = request.headers.get("origin")
+    if (origin and request.url.path.startswith(("/api/", "/v1/"))
+            and not _trusted_origin(origin, request.headers.get("host", ""), request.url.scheme)):
+        return JSONResponse({"detail": "Untrusted browser origin"}, status_code=403)
     request_id = request.headers.get("x-request-id") or uuid.uuid4().hex[:12]
     token = request_id_var.set(request_id)
 
@@ -317,6 +330,10 @@ async def ws_chat(websocket: WebSocket):
     Client sends JSON: {message, session_id?, user_id?, agent_id?, type?}
     Server streams typed events as JSON.
     """
+    if not _trusted_origin(websocket.headers.get("origin"),
+                           websocket.headers.get("host", ""), websocket.url.scheme):
+        await websocket.close(code=4403)
+        return
     await websocket.accept()
 
     # Auth (via query param) if keys are configured
@@ -1400,16 +1417,22 @@ def _resolve_web_dist() -> Optional[Path]:
 
 _WEB_DIST = _resolve_web_dist()
 
+async def spa_fallback(full_path: str):
+    """Serve only files inside the built UI, including through symlinks."""
+    if _WEB_DIST is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    root = Path(_WEB_DIST).resolve()
+    candidate = (root / full_path).resolve()
+    if candidate != root and root not in candidate.parents:
+        raise HTTPException(status_code=404, detail="Not found")
+    if full_path and candidate.is_file():
+        return FileResponse(candidate)
+    index = (root / "index.html").resolve()
+    if root in index.parents and index.is_file():
+        return FileResponse(index)
+    raise HTTPException(status_code=404, detail="Not found")
+
+
 if _WEB_DIST is not None:
     app.mount("/assets", StaticFiles(directory=str(Path(_WEB_DIST) / "assets")), name="assets")
-
-    @app.get("/{full_path:path}", include_in_schema=False)
-    async def spa_fallback(full_path: str):
-        """Serve the SPA; unknown paths fall back to index.html."""
-        candidate = Path(_WEB_DIST) / full_path
-        if full_path and candidate.is_file():
-            return FileResponse(candidate)
-        index = Path(_WEB_DIST) / "index.html"
-        if index.is_file():
-            return FileResponse(index)
-        raise HTTPException(status_code=404, detail="Not found")
+    app.get("/{full_path:path}", include_in_schema=False)(spa_fallback)

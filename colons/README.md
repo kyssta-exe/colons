@@ -6,7 +6,7 @@
 
 For the recommended installer and deployment instructions, see the [repository README](../README.md) and [installation guide](../docs/installation.md).
 
-Colons is a complete agentic harness: it plans, calls tools, remembers, runs tasks in the
+Colons is a beta agent workspace: it plans, calls tools, remembers, runs tasks in the
 background, talks to any AI provider you have, speaks with Microsoft Edge TTS, and ships a
 ChatGPT-style web UI + a full CLI. One Python package, zero required services, MIT licensed.
 
@@ -37,7 +37,7 @@ ChatGPT-style web UI + a full CLI. One Python package, zero required services, M
 - **Long-term memory** — SQLite by default (zero-config), Postgres + pgvector for scale;
   semantic recall, per-user/per-agent isolation, pruning
 - **Caching** — in-memory by default, Redis optional; exact-match semantic response cache
-- **21 built-in tools** — filesystem, shell, web search/fetch, HTTP, Python, calculator,
+- **Built-in tools** — filesystem, shell, web search/fetch, HTTP, Python, calculator,
   regex, JSON, time, memory tools — with **permission levels** (auto / pre-approved / ask / handoff)
 - **Autonomous tasks** — queue, plan, execute, and report; background worker
 - **Bots** — a roster of named agents with their own persona, avatar, model and chats
@@ -478,7 +478,7 @@ backend/
   colons_core/
     providers/     base + native adapters (openai_compat, anthropic, google, ollama) + catalog
     agents/        the harness: agentic loop, persistent sessions, tasks, proactive work
-    tools/         registry, permission manager, 21 built-ins
+    tools/         registry, permission manager, built-ins
     memory/        SQLite/Postgres stores, cache, embeddings
     scheduler/     cron parser, schedule store, scheduler (continuity/monitor)
     bots/          roster, bot-to-bot messenger, peers, silence tokens

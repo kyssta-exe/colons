@@ -135,3 +135,12 @@ Run diagnostics while the server is up:
 ```bash
 colons/.venv/bin/colons --url http://127.0.0.1:8000 doctor
 ```
+
+## Additional browser UI origins
+
+Same-origin browser requests work automatically. For a UI served on another origin,
+set `COLONS_CORS_ORIGINS` to a comma-separated list of its exact origins. The default
+allows the local Vite development UI on localhost/127.0.0.1 port 5173. HTTP API and
+chat WebSocket requests from other browser origins are rejected. Do not use `*` for
+an open local server. CLI/server clients without an Origin header still require the
+server API key when authentication is enabled.

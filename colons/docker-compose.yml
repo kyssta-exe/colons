@@ -47,6 +47,7 @@ services:
       COLONS_LOG_FILE: ${COLONS_LOG_FILE:-}
       # Security
       COLONS_API_KEYS: ${COLONS_API_KEYS:-}
+      COLONS_CORS_ORIGINS: ${COLONS_CORS_ORIGINS:-}
     volumes:
       - colons-data:/data
       - ./workspace:/app/workspace

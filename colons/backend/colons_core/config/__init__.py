@@ -107,7 +107,7 @@ class AgentConfig:
 class ServerConfig:
     host: str = "0.0.0.0"
     port: int = 8000
-    cors_origins: List[str] = field(default_factory=lambda: ["*"])
+    cors_origins: List[str] = field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"])
     api_keys: List[str] = field(default_factory=list)  # empty => no auth (local use)
     rate_limit_per_minute: int = 120
 
@@ -245,7 +245,8 @@ class ColonsConfig:
         cfg.server = ServerConfig(
             host=_env("COLONS_HOST", s.get("host", "0.0.0.0")),
             port=_env_int("COLONS_PORT", int(s.get("port", 8000))),
-            cors_origins=s.get("cors_origins", ["*"]),
+            cors_origins=[o.strip() for o in _env("COLONS_CORS_ORIGINS", "").split(",") if o.strip()]
+            or s.get("cors_origins", ["http://localhost:5173", "http://127.0.0.1:5173"]),
             api_keys=[k.strip() for k in api_keys.split(",") if k.strip()] or s.get("api_keys", []),
             rate_limit_per_minute=int(s.get("rate_limit_per_minute", 120)),
         )

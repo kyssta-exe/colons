@@ -1,8 +1,7 @@
 # Contributing
 
-The maintained Python backend/CLI and React SPA live in `colons/`. Root-level `backend/`,
-`web/`, `agents/`, `memory/`, `providers/`, `cli/`, and `deployment/` are an earlier prototype;
-new work belongs in the active application.
+The Python backend/CLI and React SPA live in `colons/`. The repository contains one
+application, plus root installation scripts, deployment documentation, and CI workflows.
 
 Run `./scripts/install.sh --dev`, then activate `colons/.venv`. `make test` runs the Python
 suite, `make lint` checks the active backend, and `make web` builds the SPA. For UI development,

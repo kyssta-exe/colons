@@ -10,6 +10,9 @@ browser tools, memory, scheduled work, and messaging through Telegram, Discord, 
 Bring an API provider, an OpenAI-compatible endpoint, or a local model through Ollama.
 Colons keeps its own assistant identity while reporting the model you choose.
 
+Use the optional [Hermes adapter](docs/hermes.md) to let Hermes Agent discover Colons
+bots, delegate background tasks, track results, and collaborate in rooms.
+
 ![Colons chat workspace](docs/assets/chat.png)
 
 ## Install and run

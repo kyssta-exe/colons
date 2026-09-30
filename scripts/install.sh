@@ -6,16 +6,19 @@ VENV_DIR="${COLONS_VENV:-$APP_DIR/.venv}"
 PYTHON_BIN="${COLONS_PYTHON:-python3}"
 INSTALL_BROWSER=true
 BUILD_WEB=true
+INSTALL_HERMES=false
 EXTRAS=full
 for argument in "$@"; do
   case "$argument" in
     --dev) EXTRAS=full,dev ;;
     --skip-browser) INSTALL_BROWSER=false ;;
     --skip-web) BUILD_WEB=false ;;
-    --help|-h) printf '%s\n' 'Usage: scripts/install.sh [--dev] [--skip-browser] [--skip-web]' 'Requires Python 3.10+ and Node.js 20+ with npm (unless --skip-web).' 'COLONS_PYTHON selects Python; COLONS_VENV selects the virtual environment.'; exit 0 ;;
+    --hermes) INSTALL_HERMES=true ;;
+    --help|-h) printf '%s\n' 'Usage: scripts/install.sh [--dev] [--hermes] [--skip-browser] [--skip-web]' 'Requires Python 3.10+ and Node.js 20+ with npm (unless --skip-web).' 'COLONS_PYTHON selects Python; COLONS_VENV selects the virtual environment.'; exit 0 ;;
     *) printf 'Unknown option: %s\n' "$argument" >&2; exit 2 ;;
   esac
 done
+if "$INSTALL_HERMES"; then EXTRAS="$EXTRAS,hermes"; fi
 command -v "$PYTHON_BIN" >/dev/null || { printf '%s\n' 'Install Python 3.10+ first.' >&2; exit 1; }
 "$PYTHON_BIN" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else "Python 3.10+ is required")'
 if "$BUILD_WEB"; then

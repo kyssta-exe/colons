@@ -108,20 +108,33 @@ class ColonsClient:
     # ------------------------------------------------------------------ #
 
     async def create_task(self, description: str, priority: int = 1,
-                          user_id: str = "default") -> Dict:
+                          user_id: str = "default", agent_id: Optional[str] = None) -> Dict:
         r = await self.client.post("/api/tasks", json={
             "description": description, "priority": priority, "user_id": user_id,
+            "agent_id": agent_id,
         })
         r.raise_for_status()
         return r.json()
 
-    async def list_tasks(self, user_id: str = "default", status: Optional[str] = None) -> List[Dict]:
+    async def list_tasks(self, user_id: str = "default", status: Optional[str] = None,
+                         agent_id: Optional[str] = None) -> List[Dict]:
         params: Dict[str, Any] = {"user_id": user_id}
+        if agent_id:
+            params["agent_id"] = agent_id
         if status:
             params["status"] = status
         r = await self.client.get("/api/tasks", params=params)
         r.raise_for_status()
         return r.json()["tasks"]
+
+    async def get_task(self, task_id: str, user_id: str = "default",
+                       agent_id: Optional[str] = None) -> Dict:
+        params = {"user_id": user_id}
+        if agent_id:
+            params["agent_id"] = agent_id
+        r = await self.client.get(f"/api/tasks/{task_id}", params=params)
+        r.raise_for_status()
+        return r.json()
 
     async def run_task(self, task_id: str, user_id: str = "default") -> Dict:
         r = await self.client.post(f"/api/tasks/{task_id}/run", params={"user_id": user_id})
@@ -213,6 +226,11 @@ class ColonsClient:
         r = await self.client.post("/api/voice/transcribe", files=files, data=data)
         r.raise_for_status()
         return r.json()
+
+    async def list_agents(self) -> List[Dict]:
+        r = await self.client.get("/api/agents")
+        r.raise_for_status()
+        return r.json()["agents"]
 
     async def agent_status(self, agent_id: str, user_id: str = "default") -> Dict:
         r = await self.client.get(f"/api/agents/{agent_id}/status", params={"user_id": user_id})
@@ -341,10 +359,11 @@ class ColonsClient:
         return r.json()["bots"]
 
     async def create_bot(self, name: str, title: str = "", description: str = "",
-                         persona: str = "", avatar: str = "", model: str = "") -> Dict:
+                         persona: str = "", avatar: str = "", model: str = "",
+                         owner: str = "default") -> Dict:
         r = await self.client.post("/api/bots", json={
             "name": name, "title": title, "description": description,
-            "persona": persona, "avatar": avatar, "model": model,
+            "persona": persona, "avatar": avatar, "model": model, "owner": owner,
         })
         r.raise_for_status()
         return r.json()
@@ -383,8 +402,10 @@ class ColonsClient:
         r.raise_for_status()
         return r.json()["messages"]
 
-    async def send_room_message(self, room_id: str, message: str) -> List[Dict]:
-        r = await self.client.post(f"/api/rooms/{room_id}/messages", json={"message": message})
+    async def send_room_message(self, room_id: str, message: str,
+                                speaker: str = "user") -> List[Dict]:
+        r = await self.client.post(f"/api/rooms/{room_id}/messages",
+                                   json={"message": message, "speaker": speaker})
         r.raise_for_status()
         return r.json()["messages"]
 

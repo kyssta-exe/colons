@@ -1,0 +1,86 @@
+# ============================================================
+# Colons - self-hosted deployment
+#
+#   docker compose up -d                # Colons + Ollama
+#   docker compose --profile redis up -d
+#
+# Then open http://localhost:8000
+# ============================================================
+
+services:
+  colons:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: colons:latest
+    container_name: colons
+    restart: unless-stopped
+    ports:
+      - "${COLONS_BIND_ADDRESS:-127.0.0.1}:${COLONS_PORT:-8000}:8000"
+    environment:
+      # Provider (defaults to the bundled Ollama service)
+      COLONS_PROVIDER: ${COLONS_PROVIDER:-ollama}
+      COLONS_API_KEY: ${COLONS_API_KEY:-}
+      COLONS_BASE_URL: ${COLONS_BASE_URL:-http://ollama:11434}
+      COLONS_MODEL: ${COLONS_MODEL:-llama3.1}
+      # Memory & cache
+      COLONS_STORE_URL: /data/colons.db
+      COLONS_CACHE_URL: ${COLONS_CACHE_URL:-}
+      # Tools & agent
+      COLONS_WORKSPACE: /app/workspace
+      COLONS_AUTO_APPROVE: ${COLONS_AUTO_APPROVE:-false}
+      COLONS_PROACTIVE: ${COLONS_PROACTIVE:-true}
+      # Voice
+      COLONS_VOICE_ENABLED: ${COLONS_VOICE_ENABLED:-false}
+      COLONS_TTS_VOICE: ${COLONS_TTS_VOICE:-en-US-AriaNeural}
+      # Scheduler
+      COLONS_SCHEDULER_ENABLED: ${COLONS_SCHEDULER_ENABLED:-true}
+      COLONS_TIMEZONE: ${COLONS_TIMEZONE:-UTC}
+      # Messaging integrations
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+      SLACK_SIGNING_SECRET: ${SLACK_SIGNING_SECRET:-}
+      # Logging
+      COLONS_LOG_LEVEL: ${COLONS_LOG_LEVEL:-INFO}
+      COLONS_LOG_FILE: ${COLONS_LOG_FILE:-}
+      # Security
+      COLONS_API_KEYS: ${COLONS_API_KEYS:-}
+    volumes:
+      - colons-data:/data
+      - ./workspace:/app/workspace
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: colons-ollama
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    # Uncomment to expose an NVIDIA GPU to Ollama:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # Optional Redis cache (set COLONS_CACHE_URL=redis://redis:6379/0 to use)
+  redis:
+    image: redis:7-alpine
+    container_name: colons-redis
+    restart: unless-stopped
+    profiles: ["redis"]
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+
+volumes:
+  colons-data:
+  ollama-models:
+  redis-data:

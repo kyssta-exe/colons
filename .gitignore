@@ -1,0 +1,33 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+node_modules/
+dist/
+*.tsbuildinfo
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.local
+colons.yaml
+
+.colons/browser/
+data/
+
+# Private messaging credentials saved by the settings UI
+messaging.json
+
+# Local default permission policy
+permissions.json
+
+build/
+colons/backend/colons_api/static/
+workspace/
+*.log
+.env.*
+!.env.example
+colons.yml
+colons.json

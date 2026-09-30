@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "colons"
+version = "0.0.1b1"
+description = "Self-hosted AI assistant workspace with chat, tools, memory, and scheduled work"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Colons Contributors" }]
+keywords = ["ai", "agent", "llm", "self-hosted", "openai", "anthropic", "ollama"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "httpx>=0.27",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.6",
+    "websockets>=12",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+# Everything for a full local install
+full = [
+    "rich>=13",
+    "edge-tts>=6.1",
+    "pyttsx3>=2.90",
+    "tiktoken>=0.6",
+    "pyyaml>=6",
+    "psycopg2-binary>=2.9",
+    "redis>=5",
+    "playwright>=1.49",
+]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "httpx>=0.27",
+]
+# Convenience aliases
+browser = ["playwright>=1.49"]
+voice = ["edge-tts>=6.1", "pyttsx3>=2.90"]
+postgres = ["psycopg2-binary>=2.9"]
+redis = ["redis>=5"]
+
+[project.scripts]
+colons = "colons_cli.main:main"
+
+[project.urls]
+Homepage = "https://github.com/kyssta-exe/colons"
+Issues = "https://github.com/kyssta-exe/colons/issues"
+
+[tool.setuptools]
+package-dir = { "" = "backend" }
+
+[tool.setuptools.package-data]
+colons_api = ["static/*", "static/**/*"]
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+include = ["colons_core*", "colons_api*", "colons_cli*"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B"]
+ignore = ["E501", "B008"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

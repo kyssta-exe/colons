@@ -1,0 +1,23 @@
+name: Bug report
+description: Report a reproducible problem in Colons.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include the expected behavior and the steps to reproduce it.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Colons version, operating system, installation method, and provider/model. Do not include API keys.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Remove credentials and private content before sharing logs.
+      render: text

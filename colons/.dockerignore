@@ -1,0 +1,15 @@
+.venv
+web/node_modules
+web/dist
+backend/colons_api/static
+**/__pycache__
+**/*.egg-info
+.pytest_cache
+.ruff_cache
+data
+workspace
+*.db*
+.env*
+colons.yaml
+colons.yml
+colons.json

@@ -90,3 +90,22 @@ button:disabled { cursor: not-allowed; }
 
 /* The composer shows keyboard focus on its enclosing surface. */
 textarea[aria-label="Message Colons"]:focus-visible { outline: none; }
+
+/* Colons stays vertical in every expression; only the two dots move. */
+.colons-avatar { position: relative; isolation: isolate; }
+.colons-avatar-dot { display: block; transform-origin: center; }
+.colons-avatar--idle .colons-avatar-dot { animation: colons-blink 8s ease-in-out infinite; }
+.colons-avatar--thinking .colons-avatar-dot { animation: colons-think 1.25s ease-in-out infinite; }
+.colons-avatar--thinking .colons-avatar-dot--1 { animation-delay: .22s; }
+.colons-avatar--working .colons-avatar-dot { animation: colons-work .95s ease-in-out infinite; }
+.colons-avatar--working .colons-avatar-dot--1 { animation-delay: .18s; }
+.colons-avatar--speaking .colons-avatar-dot { animation: colons-talk .48s ease-in-out infinite alternate; }
+.colons-avatar--speaking .colons-avatar-dot--1 { animation-delay: .12s; }
+.colons-avatar--waiting .colons-avatar-dot { animation: colons-wait 2.4s ease-in-out infinite; }
+.colons-avatar:hover .colons-avatar-dot { filter: brightness(1.12); }
+@keyframes colons-blink { 0%, 44%, 48%, 100% { transform: scaleY(1); } 46% { transform: scaleY(.35); } }
+@keyframes colons-think { 0%, 100% { transform: translateY(0) scale(.94); opacity: .65; } 50% { transform: translateY(-12%) scale(1.12); opacity: 1; } }
+@keyframes colons-work { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18%); } }
+@keyframes colons-talk { from { transform: scale(.85); } to { transform: scale(1.18, .92); } }
+@keyframes colons-wait { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+html[data-colons-motion="off"] .colons-avatar-dot { animation: none; }

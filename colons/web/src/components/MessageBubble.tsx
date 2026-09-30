@@ -25,11 +25,12 @@ export function MessageBubble({ message, avatar, onSpeak, speaking, onApprove }:
   }
 
   const thinking = message.streaming && !message.content && (!message.toolCalls || message.toolCalls.length === 0)
+  const waiting = message.approvals?.some((approval) => approval.decision === undefined)
 
   return (
     <div className="flex gap-3 px-3 md:px-0 animate-fade-in">
       <div className="shrink-0 mt-0.5">
-        <BotAvatar avatar={avatar} size={32} />
+        <BotAvatar avatar={avatar} size={32} state={speaking ? 'speaking' : message.streaming ? waiting ? 'waiting' : thinking ? 'thinking' : 'working' : 'resting'} />
       </div>
 
       <div className="flex-1 min-w-0 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-[0_2px_10px_rgba(25,40,65,0.02)]">

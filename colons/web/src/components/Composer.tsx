@@ -1,4 +1,4 @@
-import { Paperclip, ArrowUp, Square, X, FileText } from 'lucide-react'
+import { Paperclip, Send, Square, X, FileText } from 'lucide-react'
 import type { Attachment } from '../lib/types'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -156,7 +156,7 @@ export function Composer({
               }} rows={1} placeholder={placeholder || 'Ask Colons anything…'}
               className="flex-1 min-w-0 bg-transparent py-2.5 px-1 resize-none outline-none text-sm leading-5 placeholder:text-slate-400 max-h-[200px]" style={{ minHeight: 40 }} />
             {streaming ? <button onClick={onCancel} aria-label="Stop response" title="Stop" className="w-10 h-10 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center shrink-0"><Square size={15} fill="currentColor" /></button>
-              : <button onClick={submit} disabled={(!text.trim() && !attachments.length) || disabled || readingFiles} aria-label="Send message" title="Send" className="w-10 h-10 rounded-full bg-colons-accent text-white disabled:bg-slate-100 disabled:text-slate-400 flex items-center justify-center shrink-0 hover:enabled:bg-colons-accentHover"><ArrowUp size={19} strokeWidth={1.7} /></button>}
+              : <button onClick={submit} disabled={(!text.trim() && !attachments.length) || disabled || readingFiles} aria-label="Send message" title="Send" className="w-10 h-10 rounded-full bg-colons-accent text-white disabled:bg-slate-100 disabled:text-slate-400 flex items-center justify-center shrink-0 hover:enabled:bg-colons-accentHover"><Send size={19} strokeWidth={1.7} className="-translate-x-px translate-y-px" /></button>}
           </div>
         </div>
         <div className="text-center text-[11px] text-slate-500 mt-2">

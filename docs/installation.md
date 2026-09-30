@@ -21,6 +21,11 @@ Options: `--dev` adds test/lint dependencies; `--skip-browser` skips the browser
 the built frontend. `COLONS_PYTHON` selects a Python executable; `COLONS_VENV` selects an
 absolute virtual-environment directory. Set the same `COLONS_VENV` when running the app.
 
+The installer adds a `colons` command in `~/.local/bin` (`COLONS_BIN_DIR` overrides it).
+Use `colons setup` for guided settings, `colons` for the terminal UI, `colons start` for
+the server, or `colons web` for the web interface. See the [command guide](cli.md).
+The `--hermes` installer option adds the optional Hermes MCP adapter.
+
 ## Model setup
 
 The run script loads `colons/.env` when present. Copy `colons/.env.example` first, then
@@ -108,7 +113,7 @@ When a release is available, download its `.whl` from the repository's GitHub Re
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install './colons-0.0.1b1-py3-none-any.whl[full]'
+python -m pip install './colons-0.0.2b1-py3-none-any.whl[full]'
 python -m playwright install chromium
 colons serve --host 127.0.0.1 --port 8000
 ```

@@ -40,6 +40,15 @@ with sync_playwright() as p:
     for name in ['Appearance', 'Voice', 'Schedules', 'Messaging', 'Server access', 'Usage']:
         dialog.get_by_role('button', name=name, exact=True).click()
         expect(dialog.get_by_role('heading', level=3)).to_be_visible()
+    dialog.get_by_role('button', name='Appearance', exact=True).click()
+    motion = dialog.get_by_role('checkbox', name='Animated avatars')
+    motion.uncheck()
+    assert page.locator('html').get_attribute('data-colons-motion') == 'off'
+    motion.check()
+    assert page.locator('html').get_attribute('data-colons-motion') == 'on'
+    page.emulate_media(reduced_motion='reduce')
+    assert page.locator('.colons-avatar-dot').first.evaluate('(el) => getComputedStyle(el).animationName') == 'none'
+    page.emulate_media(reduced_motion='no-preference')
     dialog.get_by_role('button', name='Messaging', exact=True).click()
     expect(dialog.get_by_role('heading', name='Telegram')).to_be_visible()
     telegram = dialog.get_by_role('region', name='Telegram messaging')

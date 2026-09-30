@@ -34,5 +34,12 @@ fi
 if "$INSTALL_BROWSER"; then
   "$VENV_DIR/bin/python" -m playwright install chromium
 fi
-mkdir -p "$APP_DIR/data" "$APP_DIR/workspace"
-printf '\n%s\n' 'Colons installed. Configure colons/.env or colons/colons.yaml, then run:' './scripts/run.sh' 'Open http://127.0.0.1:8000. To diagnose your model connection:' 'colons/.venv/bin/colons --url http://127.0.0.1:8000 doctor'
+BIN_DIR="${COLONS_BIN_DIR:-$HOME/.local/bin}"
+mkdir -p "$BIN_DIR"
+if [[ ! -e "$BIN_DIR/colons" || -L "$BIN_DIR/colons" ]]; then
+  ln -sfn "$VENV_DIR/bin/colons" "$BIN_DIR/colons"
+fi
+printf '\n%s\n' 'Colons installed. Run:' 'colons setup    # Choose provider, messaging, permissions, and more' 'colons          # Terminal interface' 'colons start    # Server in this terminal' 'colons web      # Open the web interface'
+if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+  printf '\nAdd %s to PATH, or use %s/bin/colons directly.\n' "$BIN_DIR" "$VENV_DIR"
+fi

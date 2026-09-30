@@ -29,6 +29,6 @@ try it in a clean environment before releasing.
 
 Update Python's version in `colons/pyproject.toml` and `colons_core/__init__.py`, npm's version
 in `colons/web/package.json` and its lockfile, and the user-facing version in Settings.
-The beta uses Python `0.0.1b1` and npm/tag `0.0.1-beta.1` / `v0.0.1-beta.1`.
+The beta uses Python `0.0.2b1` and npm/tag `0.0.2-beta.1` / `v0.0.2-beta.1`.
 A pushed version tag triggers the GitHub release workflow, which attaches the built wheel
 and source distribution. There is no automatic PyPI or Docker registry publication.

@@ -1,6 +1,6 @@
 # Beta status
 
-Colons v0.0.1 beta is usable for trusted self-hosted work. It is not yet a production
+Colons v0.0.2 beta is usable for trusted self-hosted work. It is not yet a production
 multi-user service. Passing CI verifies covered behavior, not every deployment or provider.
 
 Current checks cover Python 3.10/3.12, file tool creation/editing/approvals, frontend builds,
@@ -13,8 +13,8 @@ Before relying on it for unattended or public production workloads:
   totals currently reset on server restart.
 - Define authenticated user identity and authorization across bots, rooms, memory, tools,
   and messaging. Shared server API keys are intended for a trusted instance.
-- Add a permanent model-settings flow. UI provider/model changes are runtime-only;
-  use environment/config files for restart persistence.
+- Persist web model changes. Web provider/model changes are runtime-only;
+  `colons setup provider` and environment/config files provide restart persistence.
 - Review tool isolation for your deployment. File tools enforce workspace boundaries;
   shell commands execute with the server account's access. Permission prompts are not
   an operating-system sandbox.

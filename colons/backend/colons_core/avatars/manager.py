@@ -34,6 +34,8 @@ class Avatar:
 
 
 CHARACTERS: List[Avatar] = [
+    Avatar("ink", "Ink", "character", ["#172033", "#64748b"], "calm, precise", "",
+           "White colons on a quiet dark surface."),
     Avatar("colons", "White", "character", ["#ffffff", "#ffffff"], "clear, helpful", ":",
            "The classic Colons mark on a white circle."),
     Avatar("red", "Red", "character", ["#f87171", "#f87171"], "bold, driven", ":",
@@ -122,10 +124,12 @@ class AvatarManager:
 
     def _render_svg(self, avatar: Avatar, size: int) -> str:
         color = avatar.colors[0]
+        red, green, blue = (int(color[start:start + 2], 16) for start in (1, 3, 5))
+        foreground = "#ffffff" if red * 0.299 + green * 0.587 + blue * 0.114 < 95 else "#101827"
         return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 128 128">
   <circle cx="64" cy="64" r="60" fill="{color}" stroke="#dce1e8" stroke-width="1"/>
-  <circle cx="64" cy="48" r="12" fill="#101827"/>
-  <circle cx="64" cy="80" r="12" fill="#101827"/>
+  <circle cx="64" cy="48" r="12" fill="{foreground}"/>
+  <circle cx="64" cy="80" r="12" fill="{foreground}"/>
 </svg>"""
 
     @staticmethod

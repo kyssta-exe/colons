@@ -1,4 +1,4 @@
-> Current release: **v0.0.1 beta**
+> Current release: **v0.0.2 beta**
 
 # Colons
 
@@ -82,9 +82,10 @@ docker exec -it colons-ollama ollama pull llama3.1
 
 ```bash
 pip install -e ".[full]"      # includes CLI, voice, rich, redis, postgres extras
-colons init                   # writes colons.yaml
-colons serve                  # http://localhost:8000   (UI + API)
-colons                        # interactive CLI chat (in another terminal)
+colons setup                  # guided persistent configuration
+colons                        # full-screen terminal UI; starts/reuses a local server
+colons web                    # web UI + API, opens your browser
+colons start                  # server only; serve remains an alias
 ```
 
 No Ollama? Point Colons at any provider:
@@ -100,13 +101,13 @@ COLONS_PROVIDER=custom COLONS_BASE_URL=http://localhost:8001/v1 COLONS_MODEL=my-
 ## CLI
 
 ```bash
-colons                                    # interactive chat (streaming, tool cards)
+colons                                    # full-screen terminal UI (streaming, approvals)
 colons run "summarize the latest AI news" # one-shot
-colons task add "audit my AWS bill"       # queue an autonomous task
+colons task add --description "audit my AWS bill" # queue an autonomous task
 colons task list
-colons memory search "deployment server"  # semantic recall
+colons memory search --query "deployment server" # semantic recall
 colons tools list                         # all tools + permissions
-colons tools run calculate '{"expression": "2**10"}'
+colons tools run --tool calculate --arguments '{"expression": "2**10"}'
 colons provider list                      # 29 providers
 colons provider switch --name groq --model llama-3.3-70b-versatile
 colons voice voices --locale en-US        # Edge TTS voices

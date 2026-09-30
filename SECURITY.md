@@ -1,6 +1,6 @@
 # Security
 
-Colons v0.0.1 is a beta intended for trusted, self-hosted use. It can execute commands and
+Colons v0.0.2 is a beta intended for trusted, self-hosted use. It can execute commands and
 change files with its server account's access. Permission defaults do not sandbox shell
 commands. Shared API keys are not a full multi-tenant identity system.
 

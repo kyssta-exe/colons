@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "colons"
-version = "0.0.1b1"
+version = "0.0.2b1"
 description = "Self-hosted AI assistant workspace with chat, tools, memory, and scheduled work"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -28,6 +28,7 @@ dependencies = [
     "pydantic>=2.6",
     "websockets>=12",
     "python-multipart>=0.0.9",
+    "textual>=1,<9",
 ]
 
 [project.optional-dependencies]
@@ -72,7 +73,7 @@ colons_api = ["static/*", "static/**/*"]
 
 [tool.setuptools.packages.find]
 where = ["backend"]
-include = ["colons_core*", "colons_api*", "colons_cli*"]
+include = ["colons_core*", "colons_api*", "colons_cli*", "colons_adapters*"]
 
 [tool.ruff]
 line-length = 110

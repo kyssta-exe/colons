@@ -79,6 +79,7 @@ try:
     page.get_by_role('textbox',name='Message Colons').fill('keep going')
     page.get_by_role('button',name='Send message').click()
     expect(page.get_by_role('button',name='Stop response')).to_be_visible()
+    expect(page.locator('[data-avatar-state="working"]')).to_be_visible()
     page.get_by_role('button',name='New chat',exact=True).click()
     expect(page.get_by_role('heading',name='What can I help you think through today?')).to_be_visible()
     page.get_by_role('textbox',name='Message Colons').fill('approval please')

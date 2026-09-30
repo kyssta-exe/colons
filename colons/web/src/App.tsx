@@ -48,6 +48,10 @@ export default function App() {
   const [botModalOpen, setBotModalOpen] = useState(false)
   const [roomModalOpen, setRoomModalOpen] = useState(false)
   const [speaking, setSpeaking] = useState(false)
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null)
+  useEffect(() => {
+    document.documentElement.dataset.colonsMotion = localStorage.getItem('colons_motion') === 'off' ? 'off' : 'on'
+  }, [])
   const [voice, setVoice] = useState(localStorage.getItem('colons_voice') || '')
   const endRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -106,9 +110,10 @@ export default function App() {
     if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
   }, [])
 
-  const speak = async (text: string) => {
+  const speak = async (text: string, messageId: string) => {
     try {
-      setSpeaking(true)
+      setSpeakingMessageId(messageId)
+      setSpeaking(false)
       const blob = await api.tts(text, voice || undefined)
       audioRef.current?.pause()
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
@@ -119,6 +124,7 @@ export default function App() {
       audio.src = url
       audio.onended = () => { setSpeaking(false); URL.revokeObjectURL(url); audioUrlRef.current = null }
       await audio.play()
+      setSpeaking(true)
     } catch (e) {
       setSpeaking(false)
       if (audioUrlRef.current) { URL.revokeObjectURL(audioUrlRef.current); audioUrlRef.current = null }
@@ -205,7 +211,7 @@ export default function App() {
               {activeBot?.name || 'Colons'}
             </div>
             <div className="hidden md:flex items-center gap-2 text-sm text-slate-600">
-              <BotAvatar avatar={activeBot?.avatar_def} size={26} />
+              <BotAvatar avatar={activeBot?.avatar_def} size={26} state={speaking ? 'speaking' : streaming ? 'thinking' : 'idle'} />
               <span>{activeBot?.name || 'Colons'}</span>
               {activeBot?.title && <span className="text-slate-500">· {activeBot.title}</span>}
             </div>
@@ -226,7 +232,7 @@ export default function App() {
               <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 space-y-7">
                 {messages.map((m) => (
                   <MessageBubble key={m.id} message={m} avatar={activeBot?.avatar_def || undefined}
-                                 onSpeak={speak} speaking={speaking} onApprove={approve} />
+                                 onSpeak={(text) => void speak(text, m.id)} speaking={speaking && speakingMessageId === m.id} onApprove={approve} />
                 ))}
                 {error && !messages.some((m) => m.error === error) && (
                   <div className="mx-3 md:mx-0 text-xs text-red-600 bg-red-50/30 border border-red-200/50 rounded-lg px-3 py-2">
@@ -304,7 +310,7 @@ function EmptyState({
   ]
   return (
     <div className="min-h-full flex flex-col items-center justify-center px-5 md:px-10 py-12">
-      <div className="colons-mark mb-7" aria-hidden="true"><i /><i /></div>
+      <div className="mb-7"><BotAvatar size={64} /></div>
       <h1 className="welcome-title text-center text-3xl lg:text-4xl mb-3">What can I help you think through today?</h1>
       <p className="text-slate-500 text-sm text-center max-w-lg leading-relaxed mb-8">A calmer space to explore ideas, solve problems, and make progress.</p>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full max-w-3xl">

@@ -14,6 +14,7 @@ DEFAULT_CONFIG_PATHS = [
     "./colons.yml",
     "./colons.json",
     "~/.config/colons/config.yaml",
+    "~/.config/colons/config.json",
     "~/.colons/config.yaml",
 ]
 
@@ -105,7 +106,7 @@ class AgentConfig:
 
 @dataclass
 class ServerConfig:
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"
     port: int = 8000
     cors_origins: List[str] = field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"])
     api_keys: List[str] = field(default_factory=list)  # empty => no auth (local use)
@@ -243,7 +244,7 @@ class ColonsConfig:
         s = config.get("server", {})
         api_keys = _env("COLONS_API_KEYS", "")
         cfg.server = ServerConfig(
-            host=_env("COLONS_HOST", s.get("host", "0.0.0.0")),
+            host=_env("COLONS_HOST", s.get("host", "127.0.0.1")),
             port=_env_int("COLONS_PORT", int(s.get("port", 8000))),
             cors_origins=[o.strip() for o in _env("COLONS_CORS_ORIGINS", "").split(",") if o.strip()]
             or s.get("cors_origins", ["http://localhost:5173", "http://127.0.0.1:5173"]),

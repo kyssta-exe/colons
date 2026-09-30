@@ -11,9 +11,5 @@ fi
 ENV_FILE="${COLONS_ENV_FILE:-$APP_DIR/.env}"
 if [[ -f "$ENV_FILE" ]]; then set -a; source "$ENV_FILE"; set +a; fi
 cd "$APP_DIR"
-export COLONS_DATA_DIR="${COLONS_DATA_DIR:-$APP_DIR/data}"
-export COLONS_STORE_URL="${COLONS_STORE_URL:-$COLONS_DATA_DIR/memory.db}"
-export COLONS_WORKSPACE="${COLONS_WORKSPACE:-$APP_DIR/workspace}"
 export COLONS_WEB_DIST="${COLONS_WEB_DIST:-$APP_DIR/web/dist}"
-mkdir -p "$COLONS_DATA_DIR" "$COLONS_WORKSPACE"
-exec "$VENV_DIR/bin/python" -m uvicorn colons_api.main:app --host "${COLONS_HOST:-127.0.0.1}" --port "${COLONS_PORT:-8000}" "$@"
+exec "$VENV_DIR/bin/colons" start "$@"

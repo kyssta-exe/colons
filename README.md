@@ -1,6 +1,6 @@
 # Colons
 
-**v0.0.1 beta** · A self-hosted AI assistant workspace.
+**v0.0.2 beta** · A self-hosted AI assistant workspace.
 
 [![CI](https://github.com/kyssta-exe/colons/actions/workflows/ci.yml/badge.svg)](https://github.com/kyssta-exe/colons/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -24,11 +24,14 @@ with WSL2. The installer creates a virtual environment and builds the web UI.
 git clone https://github.com/kyssta-exe/colons.git
 cd colons
 ./scripts/install.sh
-./scripts/run.sh
+colons setup
+colons web
 ```
 
-Open **http://127.0.0.1:8000**. Stop the server with Ctrl+C. Start it again with
-`./scripts/run.sh`; you do not need to reinstall.
+`colons` opens the terminal interface; `colons start` runs the server without opening
+a browser. Stop with Ctrl+C (Ctrl+Q in the terminal interface). See the
+[command guide](docs/cli.md) for setup sections, shortcuts, and connection options.
+If `colons` is not found, add `~/.local/bin` to PATH or use `colons/.venv/bin/colons`.
 
 The default provider is Ollama. With Ollama running locally, pull a model before chatting:
 

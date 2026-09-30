@@ -48,6 +48,12 @@ jobs:
           pytest tests/test_browser.py -q
       - name: Build distribution with bundled UI
         run: ./scripts/build-release.sh
+      - name: Check installed wheel commands and Hermes adapter
+        run: |
+          python -m venv "$RUNNER_TEMP/colons-wheel"
+          wheel_path="$(python -c 'from pathlib import Path; print(next(Path("dist").glob("*.whl")))')"
+          "$RUNNER_TEMP/colons-wheel/bin/python" -m pip install "${wheel_path}[hermes]"
+          python colons/tests/package_smoke.py --venv "$RUNNER_TEMP/colons-wheel"
       - name: UI and workspace smoke checks
         run: |
           export COLONS_BROWSER_EXECUTABLE="$(python -c 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()')"

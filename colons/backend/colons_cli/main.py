@@ -2,9 +2,11 @@
 Colons CLI - talk to the same agent from your terminal.
 
 Commands:
-  colons                        Interactive chat (default)
+  colons                        Full-screen terminal UI (default)
   colons run "message"          One-shot message
-  colons serve                  Start the API server
+  colons start                  Start the API server (serve is an alias)
+  colons web                    Start server and open the web UI
+  colons setup                  Guided persistent configuration
   colons task add|list|run      Task management
   colons memory search|list     Memory tools
   colons tools list|run         Tool management
@@ -20,6 +22,8 @@ import os
 import sys
 from typing import List, Optional
 
+from colons_core import __version__
+
 try:
     from rich.console import Console
     from rich.live import Live
@@ -33,8 +37,8 @@ except ImportError:
 
 from .client import ColonsClient
 
-DEFAULT_URL = os.environ.get("COLONS_URL", "http://localhost:8000")
-DEFAULT_KEY = os.environ.get("COLONS_API_KEY")
+DEFAULT_URL = os.environ.get("COLONS_URL")
+DEFAULT_KEY = os.environ.get("COLONS_CLIENT_API_KEY")
 
 console = Console() if RICH else None
 
@@ -104,12 +108,12 @@ async def interactive(client: ColonsClient, session_id: Optional[str], user_id: 
     header("Colons")
     try:
         health = await client.health()
-        out(f"[dim]connected to {DEFAULT_URL} | provider={health.get('provider')} "
+        out(f"[dim]connected to {client.base_url} | provider={health.get('provider')} "
             f"| v{health.get('version')}[/dim]" if RICH else
-            f"Connected to {DEFAULT_URL} (provider={health.get('provider')})")
+            f"Connected to {client.base_url} (provider={health.get('provider')})")
     except Exception as e:
-        err(f"Cannot reach Colons at {DEFAULT_URL}: {e}")
-        err("Start the server with: colons serve")
+        err(f"Cannot reach Colons at {client.base_url}: {e}")
+        err("Start the server with: colons start")
         return
 
     out("Type your message, /help for commands, /quit to exit.\n")
@@ -233,8 +237,8 @@ def run_server(host: str, port: int, reload: bool):
     except ImportError:
         err("uvicorn is required to serve: pip install uvicorn")
         sys.exit(1)
-    os.environ.setdefault("COLONS_HOST", host)
-    os.environ.setdefault("COLONS_PORT", str(port))
+    os.environ["COLONS_HOST"] = host
+    os.environ["COLONS_PORT"] = str(port)
     uvicorn.run("colons_api.main:app", host=host, port=port, reload=reload)
 
 
@@ -713,6 +717,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--url", default=DEFAULT_URL, help="Colons server URL")
     p.add_argument("--api-key", default=DEFAULT_KEY, help="API key")
     p.add_argument("--user", default="default", help="User id")
+    p.add_argument("--config", default=None, help="Configuration file (defaults to local or user config)")
+    p.add_argument("--version", action="version", version=f"Colons {__version__}")
 
     sub = p.add_subparsers(dest="command")
 
@@ -726,10 +732,22 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("message")
     run.add_argument("--usage", action="store_true")
 
-    serve = sub.add_parser("serve", help="Start the API server")
-    serve.add_argument("--host", default="0.0.0.0")
-    serve.add_argument("--port", type=int, default=8000)
+    serve = sub.add_parser("start", aliases=["serve"], help="Start the Colons server in this terminal")
+    serve.add_argument("--host", default=None)
+    serve.add_argument("--port", type=int, default=None)
     serve.add_argument("--reload", action="store_true")
+
+    web = sub.add_parser("web", help="Start the server and open the web interface")
+    web.add_argument("--host", default=None)
+    web.add_argument("--port", type=int, default=None)
+    web.add_argument("--no-open", action="store_true", help="Serve without opening a browser")
+
+    setup_parser = sub.add_parser("setup", help="Guided provider, messaging, permission, server, and voice settings")
+    setup_parser.add_argument("section", nargs="?", choices=["provider", "messaging", "permissions", "server", "voice"])
+
+    tui = sub.add_parser("tui", help="Full-screen terminal interface (default)")
+    tui.add_argument("--session", default=None)
+    tui.add_argument("--no-start", action="store_true", help="Connect only; do not start a local server")
 
     task = sub.add_parser("task", help="Manage tasks")
     task.add_argument("action", choices=["add", "list", "run"])
@@ -849,16 +867,56 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def main(argv: Optional[List[str]] = None):
+def _main(argv: Optional[List[str]] = None):
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    if args.command == "serve":
-        run_server(args.host, args.port, args.reload)
+    if args.command == "setup":
+        from .configuration import setup
+        setup(args.section, args.config)
         return
 
     if args.command == "init":
         cmd_init(args)
+        return
+
+    from urllib.parse import urlparse
+
+    from .configuration import ensure_profile
+    from .runtime import managed_server
+
+    _, cfg = ensure_profile(args.config)
+    port = getattr(args, "port", None) or cfg.server.port
+    host = getattr(args, "host", None) or cfg.server.host
+    connect_host = "127.0.0.1" if host in ("0.0.0.0", "::") else host
+    if ":" in connect_host:
+        connect_host = f"[{connect_host}]"
+    args.url = args.url or f"http://{connect_host}:{port}"
+    if not args.api_key and urlparse(args.url).hostname in ("localhost", "127.0.0.1", "::1"):
+        args.api_key = next(iter(cfg.server.api_keys), None)
+
+    if args.command in ("start", "serve"):
+        run_server(host, port, args.reload)
+        return
+
+    if args.command == "web":
+        import webbrowser
+        with managed_server(args.url, cfg) as child:
+            out(f"Colons web: {args.url}")
+            if not args.no_open:
+                webbrowser.open(args.url)
+            if child:
+                out("Press Ctrl+C to stop this server.")
+                child.wait()
+        return
+
+    if args.command in (None, "tui"):
+        if not sys.stdin.isatty() or not sys.stdout.isatty():
+            raise RuntimeError("The terminal interface needs an interactive terminal. Use `colons run MESSAGE` for scripts.")
+        from .tui import ColonsTUI
+        with managed_server(args.url, cfg, auto_start=not getattr(args, "no_start", False)):
+            ColonsTUI(ColonsClient(args.url, args.api_key), args.user,
+                      getattr(args, "session", None)).run()
         return
 
     if args.command == "run":
@@ -935,6 +993,16 @@ def main(argv: Optional[List[str]] = None):
             await interactive(client, session, args.user, speak, show_reasoning)
 
     asyncio.run(_run())
+
+
+def main(argv: Optional[List[str]] = None):
+    try:
+        _main(argv)
+    except (KeyboardInterrupt, EOFError):
+        out("\nStopped.")
+    except Exception as exc:
+        err(str(exc))
+        raise SystemExit(1) from None
 
 
 if __name__ == "__main__":

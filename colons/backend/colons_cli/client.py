@@ -1,6 +1,7 @@
 """
 Async client for talking to a Colons server (used by the CLI and scripts).
 """
+import inspect
 import json
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
@@ -57,13 +58,15 @@ class ColonsClient:
 
     async def chat_stream(self, message: str, session_id: Optional[str] = None,
                           user_id: str = "default", agent_id: Optional[str] = None,
+                          approval_handler=None,
                           ) -> AsyncGenerator[Dict, None]:
         """Stream typed events over the WebSocket."""
         import websockets  # optional dependency
         ws_url = self.base_url.replace("https://", "wss://").replace("http://", "ws://")
         url = f"{ws_url}/ws/chat"
         if self.api_key:
-            url += f"?api_key={self.api_key}"
+            from urllib.parse import urlencode
+            url += "?" + urlencode({"api_key": self.api_key})
 
         async with websockets.connect(url, ping_interval=20, max_size=20 * 1024 * 1024) as ws:
             await ws.send(json.dumps({
@@ -73,11 +76,17 @@ class ColonsClient:
             }))
             async for raw in ws:
                 try:
-                    yield json.loads(raw)
+                    data = json.loads(raw)
                 except json.JSONDecodeError:
                     continue
+                yield data
+                if data.get("type") == "approval_required" and data.get("approval_id"):
+                    approved = approval_handler(data) if approval_handler else False
+                    if inspect.isawaitable(approved):
+                        approved = await approved
+                    await ws.send(json.dumps({"type": "approval", "approval_id": data["approval_id"],
+                                              "approved": approved is True}))
                 # Stop when the agent is done
-                data = json.loads(raw) if isinstance(raw, str) else {}
                 if data.get("type") == "done":
                     break
 

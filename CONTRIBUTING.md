@@ -15,7 +15,7 @@ executable. `web_smoke.py` tests native browser operations with scripted chat ev
 `web_workspace_smoke.py` checks settings, sidebars, attachments, and a harmless real shell
 command. Use a disposable data directory and do not connect production messaging services.
 
-CI checks Python 3.10/3.12, lint, frontend compilation, native browser integration, and UI
+CI checks Python 3.10/3.12, lint, frontend compilation, native browser integration, Docker image startup, and UI
 smoke tests. Keep credentials and personal database contents out of commits and logs.
 
 To build a release, install the Python `build` package and run:

@@ -78,3 +78,21 @@ jobs:
           name: colons-ui-checks
           path: ${{ runner.temp }}/colons-screenshots
           if-no-files-found: ignore
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build self-hosted image
+        run: docker build --tag colons:ci ./colons
+      - name: Smoke check container
+        run: |
+          docker run -d --name colons-ci -p 127.0.0.1:8142:8000 colons:ci
+          trap 'docker logs colons-ci; docker rm -f colons-ci' EXIT
+          ready=false
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8142/health > /dev/null; then ready=true; break; fi
+            sleep 1
+          done
+          test "$ready" = true
+          curl -fsS http://127.0.0.1:8142/ | grep -q '<title>Colons</title>'
+          curl -fsS http://127.0.0.1:8142/favicon.svg | grep -q 'cx="64"'

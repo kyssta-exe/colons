@@ -2,7 +2,7 @@
 
 **v0.0.2 beta** · A self-hosted AI assistant workspace.
 
-[![CI](https://github.com/kyssta-exe/colons/actions/workflows/ci.yml/badge.svg)](https://github.com/kyssta-exe/colons/actions/workflows/ci.yml)
+[![CI](https://github.com/okyssta/colons/actions/workflows/ci.yml/badge.svg)](https://github.com/okyssta/colons/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Colons gives your model a workspace: clean chat, named agents, shared rooms, file and
@@ -21,7 +21,7 @@ Requires **Python 3.10+**, **Node.js 20+ with npm**, and Git on Linux, macOS, or
 with WSL2. The installer creates a virtual environment and builds the web UI.
 
 ```bash
-git clone https://github.com/kyssta-exe/colons.git
+git clone https://github.com/okyssta/colons.git
 cd colons
 ./scripts/install.sh
 colons setup

@@ -5,7 +5,7 @@
 Install Python 3.10+ and Node.js 20+ with npm. Linux, macOS, and WSL2 can use the root scripts:
 
 ```bash
-git clone https://github.com/kyssta-exe/colons.git
+git clone https://github.com/okyssta/colons.git
 cd colons
 ./scripts/install.sh
 ./scripts/run.sh

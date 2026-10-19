@@ -62,8 +62,8 @@ colons = "colons_cli.main:main"
 colons-hermes = "colons_adapters.hermes:main"
 
 [project.urls]
-Homepage = "https://github.com/kyssta-exe/colons"
-Issues = "https://github.com/kyssta-exe/colons/issues"
+Homepage = "https://github.com/okyssta/colons"
+Issues = "https://github.com/okyssta/colons/issues"
 
 [tool.setuptools]
 package-dir = { "" = "backend" }
